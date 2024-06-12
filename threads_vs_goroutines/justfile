@@ -1,0 +1,8 @@
+create_pgm:
+  mkdir -p build && gcc pgm.c -o build/pgm && build/pgm
+
+compile_pgm_c:
+  mkdir -p build && gcc reverse_pgm.c -march=native -O3 -o build/reverse_pgm_c
+
+compile_pgm_go:
+  mkdir -p build && go build -o build/reverse_pgm_go reverse_pgm.go 
