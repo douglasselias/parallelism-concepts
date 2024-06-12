@@ -32,3 +32,5 @@ C results:
 ![c results](threads_vs_goroutines/c_results.png)
 
 The C code executes instantly and the Go code takes at least half a second. I couldn't find a way to measure the memory used by each program, but I can infer that Go uses more memory since each Goroutine needs its own stack.
+
+Conclusion: For now I cannot think of any situation where it would be desirable to have Goroutines.

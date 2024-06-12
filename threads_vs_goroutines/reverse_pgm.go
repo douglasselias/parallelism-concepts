@@ -39,18 +39,16 @@ func main() {
 
 	pixels, _ := io.ReadAll(reader)
 
-	index := 0
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			wg.Add(1)
+	totalPixels := height * width
+	for index := 0; index < totalPixels; index++ {
+		wg.Add(1)
 
-			go func(i int) {
-				pixels[i] = 255 - pixels[i]
-				wg.Done()
-			}(index)
+		go func(i int) {
+			pixels[i] = 255 - pixels[i]
+			wg.Done()
+		}(index)
 
-			index++
-		}
+		index++
 	}
 
 	wg.Wait()
