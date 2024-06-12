@@ -1,6 +1,6 @@
-# parallelism-concepts
+# Parallelism concepts
 
-This is a summary of the most common parallelism concepts that I know of and serves as a reference guide for me.
+This is a summary of the most common parallelism concepts that I know of and serves as a consolidation of my knowledge about this topic.
 
 ## 
 
@@ -31,6 +31,22 @@ Go results:
 C results:
 ![c results](threads_vs_goroutines/c_results.png)
 
-The C code executes instantly and the Go code takes at least half a second. I couldn't find a way to measure the memory used by each program, but I can infer that Go uses more memory since each Goroutine needs its own stack.
+The C code executes instantly and the Go code takes a little bit of time and more than double of CPU usage. I couldn't find a way to measure the memory used by each program, but I can infer that Go uses more memory since each Goroutine needs its own stack.
 
-Conclusion: For now I cannot think of any situation where it would be desirable to have Goroutines.
+What if you had Coroutines in C?
+
+C Coroutines results:
+![c coroutines results](threads_vs_goroutines/c_coroutine_results.png)
+
+It is still way faster than Go.
+
+Is the garbage collector the cause of sloweness?
+I tried with `debug.SetGCPercent(-1)` to disable it
+but had no difference on performance.
+
+So probably the root cause is the scheduler implementation
+of Go and/or that C compilers have better optimizations.
+
+You can read more about the [Neco scheduler on github](https://github.com/tidwall/neco#the-scheduler) 
+
+Conclusion: For now I cannot think of any situation where it would be desirable to have Goroutines (or Coroutines), and if you want speed, C is the Go to language 😉.

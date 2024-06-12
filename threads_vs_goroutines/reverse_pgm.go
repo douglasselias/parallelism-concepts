@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	// debug.SetGCPercent(-1)
+
 	inputFile, _ := os.Open("build/gradient.pgm")
 	defer inputFile.Close()
 
