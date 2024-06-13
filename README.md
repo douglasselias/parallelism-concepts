@@ -178,8 +178,6 @@ In simple terms, non-blocking IO is single threaded and AIO is multithread non-b
 
 [SWAR](https://en.wikipedia.org/wiki/SWAR) is the same idea of SIMD, but instead of using a dedicated register for this operation, you interpret the data the way you want. You could pack 4 8-bit integers in a 32-bit integer (using an arithmetic shift), do the operation and then extract the values.
 
-TODO: example of each
-
 ## Compute Shader
 
 Compute shader is a way to leverage the GPU to do arbitrary computations. It is often used when you are already using an
@@ -200,6 +198,7 @@ for doing this and is cross-platform (works with NVidia an AMD).
 
 [ROCm](https://en.wikipedia.org/wiki/ROCm) is specific for AMD
 
-TODO: example opencl
+## ISPC
 
-TODO: ISPC
+[An open-source compiler for high-performance SIMD programming on the CPU and GPU](https://ispc.github.io/documentation.html).
+Similar to C syntax.
