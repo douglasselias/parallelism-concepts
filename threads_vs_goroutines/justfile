@@ -12,3 +12,6 @@ compile_pgm_c_coroutine:
 
 compile_pgm_c_linear:
   mkdir -p build && gcc reverse_pgm_linear.c -march=native -O3 -o build/reverse_pgm_c_linear
+
+compile_pgm_go_chunks:
+  mkdir -p build && go build -o build/reverse_pgm_go_chunks reverse_pgm_chunks.go
