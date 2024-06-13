@@ -9,3 +9,6 @@ compile_pgm_go:
 
 compile_pgm_c_coroutine:
   mkdir -p build && gcc reverse_pgm_coroutine.c neco/neco.c -march=native -O3 -o build/reverse_pgm_c_coroutine
+
+compile_pgm_c_linear:
+  mkdir -p build && gcc reverse_pgm_linear.c -march=native -O3 -o build/reverse_pgm_c_linear

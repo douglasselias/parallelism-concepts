@@ -90,8 +90,6 @@ TODO: go chunks?
 
 TODO: bigger image
 
-TODO: SIMD?
-
 ## CSP (channels / goroutines)
 
 It seems that [Communicating sequential processes](https://en.wikipedia.org/wiki/Communicating_sequential_processes) is a wide topic but can be [narrowed down to channels and goroutines](https://www.youtube.com/watch?v=zJd7Dvg3XCk).
