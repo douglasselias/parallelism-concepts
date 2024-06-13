@@ -49,8 +49,6 @@ func main() {
 			pixels[i] = 255 - pixels[i]
 			wg.Done()
 		}(index)
-
-		index++
 	}
 
 	wg.Wait()

@@ -5,10 +5,23 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 )
+
+type Image struct {
+	pixels []byte
+	width  int
+	height int
+}
+
+type GoArgs struct {
+	image    Image
+	startRow int
+	endRow   int
+}
 
 func main() {
 	// debug.SetGCPercent(-1)
@@ -21,8 +34,7 @@ func main() {
 	outputFile, _ := os.Create("build/inverted_gradient_go_chunks.pgm")
 	defer outputFile.Close()
 
-	width := 0
-	height := 0
+	image := Image{}
 	writer := bufio.NewWriter(outputFile)
 	defer writer.Flush()
 
@@ -31,8 +43,8 @@ func main() {
 		line, _ := reader.ReadString('\n')
 		if i == 1 {
 			parts := strings.Fields(line)
-			width, _ = strconv.Atoi(parts[0])
-			height, _ = strconv.Atoi(parts[1])
+			image.width, _ = strconv.Atoi(parts[0])
+			image.height, _ = strconv.Atoi(parts[1])
 		}
 		fmt.Fprint(writer, line)
 	}
@@ -40,17 +52,37 @@ func main() {
 	var wg sync.WaitGroup
 
 	pixels, _ := io.ReadAll(reader)
+	image.pixels = pixels
 
-	totalPixels := height * width
-	for index := 0; index < totalPixels; index++ {
+	totalThreads := runtime.NumCPU() - 1
+	rowsPerThread := image.height / totalThreads
+	extraRows := image.height % totalThreads
+	startRow := 0
+
+	for i := 0; i < totalThreads; i++ {
 		wg.Add(1)
 
-		go func(i int) {
-			pixels[i] = 255 - pixels[i]
-			wg.Done()
-		}(index)
+		countExtraRows := 0
+		if i < extraRows {
+			countExtraRows = 1
+		}
 
-		index++
+		args := GoArgs{
+			image:    image,
+			startRow: startRow,
+			endRow:   startRow + rowsPerThread + countExtraRows,
+		}
+		startRow = args.endRow
+
+		go func(args GoArgs) {
+			for row := args.startRow; row < args.endRow; row++ {
+				for col := 0; col < args.image.width; col++ {
+					index := row*args.image.width + col
+					args.image.pixels[index] = 255 - args.image.pixels[index]
+				}
+			}
+			wg.Done()
+		}(args)
 	}
 
 	wg.Wait()
