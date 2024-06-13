@@ -4,9 +4,9 @@ This is a summary of the most common parallelism concepts that I know of and ser
 
 ## Concurrency vs Parallelism
 
-> **Concurrency** is like pin juggling, one person (CPU core) executing several tasks (pins) by rapidly switching between them to keep all the pins in the air.
+**Concurrency** is like pin juggling, one person (CPU core) executing several tasks (pins) by rapidly switching between them to keep all the pins in the air.
 
-> **Parallelism** is like horse racing, each horse (CPU core) executes
+**Parallelism** is like horse racing, each horse (CPU core) executes
 one task (running) at the same time.
 
 ## MapReduce
