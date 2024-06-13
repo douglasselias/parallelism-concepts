@@ -2,14 +2,14 @@
 
 int main() {
   FILE* file = fopen("build/gradient.pgm", "wb");
-  int width = 1000, height = 1000;
+  int one_kb = 1024;
+  int width = 32 * one_kb, height = 32 * one_kb; // 1GB
 
   // Write the PGM header
   fprintf(file, "P5\n"); // P5 indicates binary encoding
   fprintf(file, "%d %d\n", width, height);
   fprintf(file, "255\n"); // Maximum pixel value
 
-  // Write pixel data
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       // Generate a gradient from black to white

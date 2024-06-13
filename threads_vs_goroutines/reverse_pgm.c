@@ -3,12 +3,8 @@
 #include <pthread.h>
 #include <sys/sysinfo.h>
 
-// Define the maximum width and height of the image
-#define MAX_WIDTH  1000
-#define MAX_HEIGHT 1000
-
 typedef struct {
-  unsigned char pixels[MAX_WIDTH][MAX_HEIGHT];
+  unsigned char** pixels;
   int width;
   int height;
 } Image;
@@ -35,24 +31,22 @@ void* invert_chunk(void* arg) {
 int main() {
   FILE* input_file = fopen("build/gradient.pgm", "rb");
   Image image;
-  // Read image width and height from input file
   fscanf(input_file, "P5\n%d %d\n255\n", &image.width, &image.height);
 
-  if (image.width > MAX_WIDTH || image.height > MAX_HEIGHT) {
-    printf("Error: Image size exceeds maximum dimensions.\n");
-    fclose(input_file);
-    return 1;
-  }
+	image.pixels = (unsigned char**)malloc(image.height * sizeof(unsigned char*));
+	for (int i = 0; i < image.height; i++) {
+		image.pixels[i] = (unsigned char*)malloc(image.width * sizeof(unsigned char));
+	}
 
-  // Read pixel values from input file
-  fread(image.pixels, sizeof(unsigned char), image.width * image.height, input_file);
+	for (int i = 0; i < image.height; i++) {
+		fread(image.pixels[i], sizeof(unsigned char), image.width, input_file);
+	}
+
   fclose(input_file);
 
-  // Determine the number of threads based on the number of CPU cores
   int total_threads = get_nprocs() - 1; // Leave one core for current process
   pthread_t threads[total_threads];
   ThreadArgs thread_args[total_threads];
-  // Divide the image rows among the threads
   int rows_per_thread = image.height / total_threads;
   int extra_rows = image.height % total_threads;
   int start_row = 0;
@@ -72,11 +66,12 @@ int main() {
 
   FILE* outputFile = fopen("build/inverted_gradient_c.pgm", "wb");
 
-  // Write image header to output file
   fprintf(outputFile, "P5\n%d %d\n255\n", image.width, image.height);
 
-  // Write inverted pixel values to output file
-  fwrite(image.pixels, sizeof(unsigned char), image.width * image.height, outputFile);
+  for (int i = 0; i < image.height; i++) {
+    fwrite(image.pixels[i], sizeof(unsigned char), image.width, outputFile);
+  }
+
   fclose(outputFile);
 
   printf("New image saved as inverted_gradient_c.pgm\n");

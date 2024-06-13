@@ -51,44 +51,47 @@ One website defines the benefit of a Goroutine like this:
 
 This mentality is similar to manual memory management, where you are taught to use only what you need, otherwise you would be wasting resources. The truth is that this idea makes sense in a small environment, but in the real world you want to maximize the resource usage.
 
-To exemplify this, I created program `pgm.c` that creates a gradient image file with 1000 by 1000 pixels. PGM is a really simple image file format.
-Then, I created a `reverse_pgm.c` and `reverse_pgm.go` that reads this image and invert the pixel color.
+To exemplify this, I created program `pgm.c` that creates a gradient image file of one 1GB. I used the PGM file format since it is a really simple format to write on disk.
+Then, I created a five programs with different strategies that reverse the color of each pixel of the image.
 
-My approach for the Go code was to create a Goroutine for each pixel of the image. I think is fair to assume that the average Go developer will use this approach, since the scheduler will determine the amount of threads to use, therefore you can't be sure of how many Goroutines are necessary to split the workload efficiently. For the C code, my approach was to divide
-the image in chunk based on the number of CPU cores available.
+I used the `time` command on linux to compare the time and CPU usage of each solution. The total time is the user and system combined.
 
-I used the `time` command on linux to compare the time and CPU usage.
+My first approach for the Go code was to create a Goroutine for each pixel of the image. I think is fair to assume that the average Go developer will use this approach, since the scheduler will determine the amount of threads to use, therefore you can't be sure of how many Goroutines are necessary to split the workload efficiently.
 
 Go results:
-![go results](threads_vs_goroutines/go_results.png)
+![goroutine results](threads_vs_goroutines/goroutine.png)
 
-C results:
-![c results](threads_vs_goroutines/c_results.png)
+It simply took too long to finish, so I had to kill the process.
+Clearly not a viable solution.
 
-The C code executes instantly and the Go code takes a little bit of time and more than double of CPU usage. I couldn't find a way to measure the memory used by each program, but I can infer that Go uses more memory since each Goroutine needs its own stack.
+I used the same approach using a coroutine library for C code.
 
-What if you had Coroutines in C?
+![coroutine results](threads_vs_goroutines/coroutine.png)
 
-C Coroutines results:
-![c coroutines results](threads_vs_goroutines/c_coroutine_results.png)
+It takes some time and finishes in 1 minute and 24 seconds. Very inefficient.
 
-It is still way faster than Go.
+My second approach for the Go code was to divide the workload
+evenly by the number of threads that my computer support. The scheduler
+is still responsible for distributing the goroutines.
 
-Is the garbage collector the cause of sloweness?
-I tried with `debug.SetGCPercent(-1)` to disable it
-but had no difference on performance.
+![multithread go results](threads_vs_goroutines/multithread_go.png)
 
-So probably the root cause is the difference between scheduler implementations.
+Now it takes less than 5 seconds.
 
-You can read more about the [Neco scheduler on Github](https://github.com/tidwall/neco#the-scheduler).
+I used the same approach for the C code.
 
-You can read more about the [Go scheduler on Github](https://github.com/golang/go/blob/b788e91badd523e5bb0fc8d50cd76b8ae04ffb20/src/runtime/proc.go#L22-L114)
+![multithread c results](threads_vs_goroutines/multithread_c.png)
 
-Conclusion: For now I cannot think of any situation where it would be desirable to have Goroutines (or Coroutines), and if you want speed, C is the Go to language 😉.
+It took less than 3 seconds.
 
-TODO: go chunks?
+For my final approach I created the simplest solution, which is to
+iterate each pixel without using any threads or coroutines.
 
-TODO: bigger image
+![linear c results](threads_vs_goroutines/linear.png)
+
+Amazing! It takes 2.5 seconds and is faster than the multithread code!
+
+Conclusion: If you want speed, C is the Go to language 😉.
 
 ## CSP (channels / goroutines)
 
