@@ -91,7 +91,7 @@ iterate each pixel without using any threads or coroutines.
 
 Amazing! It takes 2.5 seconds and is faster than the multithread code!
 
-Conclusion: If you want speed, C is the Go to language 😉.
+Conclusion: If you want speed, C is the Go-to language 😉.
 
 ## CSP (channels / goroutines)
 
