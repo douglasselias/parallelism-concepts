@@ -54,6 +54,8 @@ This mentality is similar to manual memory management, where you are taught to u
 To exemplify this, I created program `pgm.c` that creates a gradient image file with 1000 by 1000 pixels. PGM is a really simple image file format.
 Then, I created a `reverse_pgm.c` and `reverse_pgm.go` that reads this image and invert the pixel color.
 
+TODO: a junior approach?
+
 My approach for the Go code was to create a Goroutine for each pixel of the image. For the C code, my approach was to divide
 the image in chunk based on the number of CPU cores available.
 
@@ -86,35 +88,73 @@ You can read more about the [Go scheduler on Github](https://github.com/golang/g
 
 Conclusion: For now I cannot think of any situation where it would be desirable to have Goroutines (or Coroutines), and if you want speed, C is the Go to language 😉.
 
+TODO: bigger image
+TODO: SIMD?
+
 ## CSP (channels / goroutines)
 
 It seems that [Communicating sequential processes](https://en.wikipedia.org/wiki/Communicating_sequential_processes) is a wide topic but can be [narrowed down to channels and goroutines](https://www.youtube.com/watch?v=zJd7Dvg3XCk).
 
-The main idea is to have a queue where each goroutine can send data and read asynchronously. It seems similar to a circular buffer when you have one producer and several readers.
+The main idea is to have a queue where each goroutine can send data and read asynchronously. It seems similar to a circular queue when you have one producer and several readers.
+
+## Producer-Consumer problem
+
+When you have one or several producers and one or several consumers that communicate with a single shared data.
+
+My notes: you can use channels or a circular buffer to solve this.
+
+## Circular buffer
 
 TODO: compare channels with circular buffer.
 
-## Circular buffer (producer / consumer problem)
+https://guide.handmadehero.org/code/day126/
 
-## Readers / Writers problem?
+https://en.wikipedia.org/wiki/Circular_buffer
 
-Only writers block
+## Readers-Writers problem
+
+[Article about the different cases of readers-writers problem](https://www.baeldung.com/cs/readers-writers-problem). AFAIK the only use case is for a database (SQLite uses this approach) where several threads can read the data at the same time but only the writer will lock the data.
+
+My notes: this seems the most sensible solution if you ever need this type of feature.
 
 ## Actor Model
 
 TODO
 
-## Busy wait / spin lock
+## Busy wait / Spinlock
 
-## Atomic
+Is simply a loop where you run forever and check everytime for
+a change in some data.
 
-Only primitive types.
+Read more on [Wikipedia about Busy Wait](https://en.wikipedia.org/wiki/Busy_waiting), [Spinlock on Wikipedia](https://en.wikipedia.org/wiki/Spinlock) and [Spinlock on StackOverflow](https://stackoverflow.com/questions/1957398/what-exactly-are-spin-locks)
+
+```c
+while(is_resource_locked(resource)) {
+  // now you are busy (checking the resource)
+  // but is still waiting for the resource to be unlocked
+
+  // I'm busy doing nothing!
+  // Try spinning, its a good trick!
+}
+
+// my time has come!
+lock();
+resource = new_value;
+unlock();
+```
+
+## Atomic types
+
+[C has _Atomic keyword](https://en.cppreference.com/w/c/language/atomic) for ensuring that the data can be modified without worrying about race conditions. Only primitive types are supported.
 
 ## Mutex
 
+https://en.wikipedia.org/wiki/Mutual_exclusion
 TODO
 
 ## Semaphore (wait group?)
+
+https://en.wikipedia.org/wiki/Semaphore_(programming)
 
 TODO
 
@@ -122,6 +162,31 @@ TODO
 
 TODO
 
-## SIMD / OpenCL / CUDA / ISPC / Shader Compute (Vulkan / GLSL / HSLS)
+## SIMD / SWAR
 
-TODO
+[SIMD](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data) is way to execute a single instruction on multiple data. You can think as doing a `map` operation in parallel on an array of values.
+
+[SWAR](https://en.wikipedia.org/wiki/SWAR) is the same idea of SIMD, but instead of using a dedicated register for this operation, you interpret the data the way you want. You could pack 4 8-bit integers in a 32-bit integer (using an arithmetic shift), do the operation and then extract the values.
+
+## Compute Shader
+
+Compute shader is a way to leverage the GPU to do arbitrary computations. It is often used when you are already using an
+graphics api like OpenGL or Vulkan inside your program.
+
+[Compute Shader in OpenGL](https://learnopengl.com/Guest-Articles/2022/Compute-Shaders/Introduction)
+[Compute Shader in Vulkan](https://vkguide.dev/docs/gpudriven/compute_shaders/)
+
+## GPGPU
+
+[GPGPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) is a way to leverage the GPU to do arbitrary computations.
+
+[OpenCL](https://en.wikipedia.org/wiki/OpenCL) is a framework
+for doing this and is cross-platform (works with Nvidia an AMD).
+
+[CUDA](https://en.wikipedia.org/wiki/CUDA) is specific for NVidia
+
+[ROCm](https://en.wikipedia.org/wiki/ROCm) is specific for AMD
+
+TODO: example opencl
+
+TODO: ISPC
