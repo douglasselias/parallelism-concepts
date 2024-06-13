@@ -17,7 +17,7 @@ one task (running) at the same time.
 
 [Dataflow](https://en.wikipedia.org/wiki/Dataflow_programming) is a programming paradigm for dealing with state where each operation changes the state sequentially thus removing the need for locks or other mechanisms for handling shared state problems in parallel code. Most commonly found in functional languages like [Clojure async package](https://clojure.org/reference/async).
 
-My notes: Must be implemented on the language level and is not performant. This is also related to persistent data structures and immutability. It does make it easy to deal with parallel code but I don't think it is worth it performance wise. Can't think of any real world use case for this and couldn't find any examples online.
+My notes: Must be implemented on the language level and is not performant. This is also related to persistent data structures and immutability. It does make it easy to deal with parallel code but I don't think it is worth it performance wise.
 
 ## Transactional memory
 
@@ -27,17 +27,17 @@ My notes: Can't think of any real world use case for this and couldn't find any 
 
 ## IPC - Shared Memory
 
-[IPC - Shared Memory](https://www.geeksforgeeks.org/ipc-shared-memory/) is a way to communicate between two different processes.
+[IPC - Shared Memory](https://www.geeksforgeeks.org/ipc-shared-memory/) is a way to communicate between two different processes using shared memory.
 
 My notes: Can't think of any real world use case for this and couldn't find any examples online.
 
 ## IPC - Message Passing
 
-[IPC - Message Passing](https://www.geeksforgeeks.org/inter-process-communication-ipc/) is a way to communicate between two different processes.
+[IPC - Message Passing](https://www.geeksforgeeks.org/inter-process-communication-ipc/) is a way to communicate between two different processes using messages.
 
 My notes: Can't think of any real world use case for this and couldn't find any examples online.
 
-From my understanding the goal should be to only have one process running (your program). Think about a server hosted on a machine of a cloud service. Creating another process on that machine will consume memory and cpu power that could be better used for your main server process.
+From my understanding the goal should be to only have one process running (your program). Think about a server hosted on a machine in a cloud service. Creating another process on that machine will consume memory and CPU power that could be better used for your main server process.
 
 ## Threads VS Goroutines
 
@@ -54,9 +54,7 @@ This mentality is similar to manual memory management, where you are taught to u
 To exemplify this, I created program `pgm.c` that creates a gradient image file with 1000 by 1000 pixels. PGM is a really simple image file format.
 Then, I created a `reverse_pgm.c` and `reverse_pgm.go` that reads this image and invert the pixel color.
 
-TODO: a junior approach?
-
-My approach for the Go code was to create a Goroutine for each pixel of the image. For the C code, my approach was to divide
+My approach for the Go code was to create a Goroutine for each pixel of the image. I think is fair to assume that the average Go developer will use this approach, since the scheduler will determine the amount of threads to use, therefore you can't be sure of how many Goroutines are necessary to split the workload efficiently. For the C code, my approach was to divide
 the image in chunk based on the number of CPU cores available.
 
 I used the `time` command on linux to compare the time and CPU usage.
@@ -88,14 +86,17 @@ You can read more about the [Go scheduler on Github](https://github.com/golang/g
 
 Conclusion: For now I cannot think of any situation where it would be desirable to have Goroutines (or Coroutines), and if you want speed, C is the Go to language 😉.
 
+TODO: go chunks?
+
 TODO: bigger image
+
 TODO: SIMD?
 
 ## CSP (channels / goroutines)
 
 It seems that [Communicating sequential processes](https://en.wikipedia.org/wiki/Communicating_sequential_processes) is a wide topic but can be [narrowed down to channels and goroutines](https://www.youtube.com/watch?v=zJd7Dvg3XCk).
 
-The main idea is to have a queue where each goroutine can send data and read asynchronously. It seems similar to a circular queue when you have one producer and several readers.
+The main idea is to have a queue where each goroutine can send data and read asynchronously.
 
 ## Producer-Consumer problem
 
@@ -105,11 +106,11 @@ My notes: you can use channels or a circular buffer to solve this.
 
 ## Circular buffer
 
-TODO: compare channels with circular buffer.
+[Circular buffer](https://en.wikipedia.org/wiki/Circular_buffer)
+is a data structure that can be used for communication between
+producers and consumers.
 
-https://guide.handmadehero.org/code/day126/
-
-https://en.wikipedia.org/wiki/Circular_buffer
+[Handmade Hero - Implementation in C for rendering chunks of graphics](https://guide.handmadehero.org/code/day126/)
 
 ## Readers-Writers problem
 
@@ -119,7 +120,15 @@ My notes: this seems the most sensible solution if you ever need this type of fe
 
 ## Actor Model
 
-TODO
+[Actor model](https://en.wikipedia.org/wiki/Actor_model)
+is a computing model where the building block is an actor
+that has a local state, can receive and send messages and create other actors. You can think as each actor having a mailbox (queue/channel) of messages.
+
+Erlang is built on this entire model.
+
+My notes: it seems similar to Goroutines, where the main idea is to have several actors running. I fail to see if this is really
+relevant compared to a simpler approach of creating the threads that you need beforehand and streaming the data to these threads.
+Another concept related to Actors is a Supervisor, which can take different actions based on the failure of an actor. I don't know if you really need actors to implement this behavior. I suspect that you don't and the whole idea of actors seems a little overrated for praising high availability.
 
 ## Busy wait / Spinlock
 
@@ -149,18 +158,19 @@ unlock();
 
 ## Mutex
 
-https://en.wikipedia.org/wiki/Mutual_exclusion
-TODO
+[Mutex](https://en.wikipedia.org/wiki/Mutual_exclusion) is a lock mechanism for ensuring that only one thread can execute a block of code or modify a value.
 
-## Semaphore (wait group?)
+## Semaphore
 
-https://en.wikipedia.org/wiki/Semaphore_(programming)
+[Semaphore](https://en.wikipedia.org/wiki/Semaphore_(programming)) is a mechanism to control access by multiple threads. Can be binary or counter.
 
-TODO
+[Semaphore vs Mutex](https://www.baeldung.com/cs/semaphore-vs-mutex#semaphore-vs-mutex)
 
 ## Non-blocking IO / AIO (Async IO)
 
-TODO
+[Types of IO explained](https://stackoverflow.com/a/40049018)
+
+In simple terms, non-blocking IO is single threaded and AIO is multithread non-blocking IO.
 
 ## SIMD / SWAR
 
@@ -168,12 +178,15 @@ TODO
 
 [SWAR](https://en.wikipedia.org/wiki/SWAR) is the same idea of SIMD, but instead of using a dedicated register for this operation, you interpret the data the way you want. You could pack 4 8-bit integers in a 32-bit integer (using an arithmetic shift), do the operation and then extract the values.
 
+TODO: example of each
+
 ## Compute Shader
 
 Compute shader is a way to leverage the GPU to do arbitrary computations. It is often used when you are already using an
-graphics api like OpenGL or Vulkan inside your program.
+graphics API like OpenGL or Vulkan inside your program.
 
 [Compute Shader in OpenGL](https://learnopengl.com/Guest-Articles/2022/Compute-Shaders/Introduction)
+
 [Compute Shader in Vulkan](https://vkguide.dev/docs/gpudriven/compute_shaders/)
 
 ## GPGPU
@@ -181,7 +194,7 @@ graphics api like OpenGL or Vulkan inside your program.
 [GPGPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) is a way to leverage the GPU to do arbitrary computations.
 
 [OpenCL](https://en.wikipedia.org/wiki/OpenCL) is a framework
-for doing this and is cross-platform (works with Nvidia an AMD).
+for doing this and is cross-platform (works with NVidia an AMD).
 
 [CUDA](https://en.wikipedia.org/wiki/CUDA) is specific for NVidia
 
