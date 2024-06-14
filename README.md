@@ -93,6 +93,12 @@ Amazing! It takes 2.5 seconds and is faster than the multithread code!
 
 Conclusion: If you want speed, C is the Go-to language 😉.
 
+PS: Here is a comparison between Nodejs and Python
+
+![nodejs vs python](threads_vs_goroutines/nodejs_python.png)
+
+Python is **really slow** and Nodejs is heavily optimized. 
+
 ## CSP (channels / goroutines)
 
 It seems that [Communicating sequential processes](https://en.wikipedia.org/wiki/Communicating_sequential_processes) is a wide topic but can be [narrowed down to channels and goroutines](https://www.youtube.com/watch?v=zJd7Dvg3XCk).
